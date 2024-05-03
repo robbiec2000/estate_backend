@@ -1,0 +1,30 @@
+name: Deploy estate_backend
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}     
+      - name: Build Docker Image
+        run: docker build -t robbiec2000/estate_backend  . (DockerHub Username/Repository Name . )
+      - name: Publish Image to docker hub
+        run: docker push robbiec2000/estate_backend:latest (DockerHub Username/Repository Name:latest )
+ 
+ 
+  deploy:
+    needs: build
+    runs-on: self-hosted 
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull robbiec2000/estate_backend:latest (DockerHub Username/Repository Name:latest )
+      - name: Delete old container
+        run: docker rm -f estate-backend-container (Old Container Name if any/New container Name)
+      - name: Run Docker Container
+        run: docker run -d -p 8800:8800 --name estate-backend-container(New Container Name) -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e JWT_SECRET_KEY='${{ secrets.JWT_SECRET_KEY }}' -e CLIENT_URL='${{ secrets.CLIENT_URL }}' robbiec2000/estate_backend
