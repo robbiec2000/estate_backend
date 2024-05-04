@@ -42,7 +42,6 @@ export const getPost = async (req, res) => {
         },
       },
     });
-    console.log(post);
 
     let userId = null;
 
@@ -54,6 +53,11 @@ export const getPost = async (req, res) => {
         }
       });
     }
+
+    if(!userId){
+      return res.status(200).json({ ...post, isSaved: false });
+    }
+
 
     const saved = await prisma.savedPost.findUnique({
       where: {
